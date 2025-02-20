@@ -44,7 +44,7 @@ brewinstall () {
 # Installing my favorite packages with Homebrew
 mybpkgs () {
 	brew install zoxide tree bat fzf rm-improved bat ripgrep lsd yazi \
-		tree
+		tree onefetch lazydocker lazygit
 }
 
 # Main function to handle arguments
