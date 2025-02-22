@@ -8,9 +8,9 @@ while true; do
 	# Check if ft_lock is running and the layout is Arabic
 	if pgrep -x "ft_lock" > /dev/null && [ "$LAYOUT" = "ar" ]; then
 		setxkbmap us
-		echo "ft_lock is running, keyboard layout changed to US"
+		notify-send "Keyboard Layout" "ft_lock is running, keyboard layout changed to US" -u normal -i keyboard
 	fi
 
 	# Wait before checking again
 	sleep 5
-done &
+done
