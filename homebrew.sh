@@ -58,7 +58,7 @@ main () {
 		return
 	fi
 
-	while getopts ":p:r:" opt; do
+	while getopts ":p:r" opt; do
 		case $opt in
 			p)
 				mybpkgs $OPTARG
