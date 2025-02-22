@@ -5,10 +5,10 @@ while true; do
     # Get current keyboard layout
     LAYOUT=$(setxkbmap -query | awk '/layout:/ {print $2}')
 
-    # Check if the layout is Arabic and change to US
-    if [ "$LAYOUT" = "ar" ]; then
+    # Check if ft_lock is running and the layout is Arabic
+    if pgrep -x "ft_lock" > /dev/null && [ "$LAYOUT" = "ar" ]; then
         setxkbmap us
-        echo "Keyboard layout changed to US"
+        echo "ft_lock is running, keyboard layout changed to US"
     fi
 
     # Wait before checking again
