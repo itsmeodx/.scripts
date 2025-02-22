@@ -14,4 +14,4 @@ while true; do
 
 	# Wait before checking again
 	sleep 5
-done
+done &
