@@ -1,189 +1,73 @@
-#!/bin/sh
-# Copyright (C) 2018 Kovid Goyal <kovid at kovidgoyal.net>
-#
-# Distributed under terms of the GPLv3 license.
+#!/bin/zsh
 
-{ \unalias command; \unset -f command; } >/dev/null 2>&1
-tdir=''
-cleanup() {
-    [ -n "$tdir" ] && {
-        command rm -rf "$tdir"
-        tdir=''
-    }
-}
+# This script installs Kitty terminal on Linux x64
 
-die() {
-    cleanup
-    printf "\033[31m%s\033[m\n\r" "$*" > /dev/stderr;
-    exit 1;
-}
+# Custom variables
+dest="$HOME/Apps/kitty"
+tmpfile="/tmp/kitty.txz"
+tmpdir="/tmp/kitty"
+url="https://github.com/kovidgoyal/kitty/releases/download"
+applications_desktop_dir="$HOME/.local/share/applications"
+icons_dir="$HOME/.local/share/icons"
+bin_dir="$HOME/.local/bin"
 
-detect_network_tool() {
-    if command -v curl 2> /dev/null > /dev/null; then
-        fetch() {
-            command curl -fL "$1"
-        }
-        fetch_quiet() {
-            command curl -fsSL "$1"
-        }
-    elif command -v wget 2> /dev/null > /dev/null; then
-        fetch() {
-            command wget -O- "$1"
-        }
-        fetch_quiet() {
-            command wget --quiet -O- "$1"
-        }
-    else
-        die "Neither curl nor wget available, cannot download kitty"
-    fi
-}
+# Get the latest version number
+echo "Fetching latest Kitty version..."
+latest_version=$(curl -s "https://sw.kovidgoyal.net/kitty/current-version.txt")
 
+if [ -z "$latest_version" ]; then
+    echo "Error: Could not determine latest version"
+    exit 1
+fi
 
-detect_os() {
-    arch=""
-    case "$(command uname)" in
-        'Darwin') OS="macos";;
-        'Linux')
-            OS="linux"
-            case "$(command uname -m)" in
-                amd64|x86_64) arch="x86_64";;
-                aarch64*) arch="arm64";;
-                armv8*) arch="arm64";;
-                *) die "kitty binaries not available for architecture $(command uname -m)";;
-            esac
-            ;;
-        *) die "kitty binaries are not available for $(command uname)"
-    esac
-}
+# Construct the download URL exactly as in the original
+url="${url}/v${latest_version}/kitty-${latest_version}-x86_64.txz"
 
-expand_tilde() {
-    tilde_less="${1#\~/}"
-    [ "$1" != "$tilde_less" ] && tilde_less="$HOME/$tilde_less"
-    printf '%s' "$tilde_less"
-}
+# Download with progress bar and error checking
+echo "Downloading Kitty terminal v${latest_version}..."
+if ! wget -O $tmpfile $url 2>/dev/null; then
+    echo "An error occurred while downloading the package!"
+    echo "Please check your internet connection or your storage availability."
+    exit 1
+fi
 
-parse_args() {
-    dest='~/goinfre/Apps/'
-    [ "$OS" = "macos" ] && dest="/Applications"
-    launch='n'
-    installer=''
-    while :; do
-        case "$1" in
-            dest=*) dest="${1#*=}";;
-            launch=*) launch="${1#*=}";;
-            installer=*) installer="${1#*=}";;
-            "") break;;
-            *) die "Unrecognized command line option: $1";;
-        esac
-        shift
-    done
-    dest=$(expand_tilde "${dest}")
-    [ "$launch" != "y" -a "$launch" != "n" ] && die "Unrecognized command line option: launch=$launch"
-    dest="$dest/Kitty"
-}
+# Verify the downloaded file
+if [ ! -s "$tmpfile" ]; then
+    echo "Error: Downloaded file is empty"
+    rm -f "$tmpfile"
+    exit 1
+fi
 
+# Extract the package
+echo "Extracting the package..."
+mkdir -p /tmp/kitty-extract
+if ! tar -xJf "$tmpfile" -C "/tmp/kitty-extract" 2>/dev/null; then
+    echo "Error: Extraction failed"
+    rm -f "$tmpfile"
+    rm -rf "/tmp/kitty-extract"
+    exit 1
+fi
 
-get_file_url() {
-    url="https://github.com/kovidgoyal/kitty/releases/download/$1/kitty-$2"
-    if [ "$OS" = "macos" ]; then
-        url="$url.dmg"
-    else
-        url="$url-$arch.txz"
-    fi
-}
+# Copy the extracted files to the destination
+cp -r /tmp/kitty-extract/* "$dest"
 
-get_release_url() {
-    release_version=$(fetch_quiet "https://sw.kovidgoyal.net/kitty/current-version.txt")
-    [ $? -ne 0 -o -z "$release_version" ] && die "Could not get kitty latest release version"
-    get_file_url "v$release_version" "$release_version"
-}
+# Extract the desktop entry and icon
+echo "Setting up desktop entry and icon..."
+mkdir -p $applications_desktop_dir
+cp $dest/share/applications/kitty.desktop $applications_desktop_dir
+sed -i "s|Exec=kitty|Exec=$dest/bin/kitty|g" $applications_desktop_dir/kitty.desktop
+sed -i "s|TryExec=kitty|TryExec=$dest/bin/kitty|g" $applications_desktop_dir/kitty.desktop
+mkdir -p $icons_dir
+cp $dest/share/icons/* $icons_dir/
 
-get_version_url() {
-    get_file_url "v$1" "$1"
-}
+# Create a symbolic link to the binary
+echo "Creating a symbolic link to the binary..."
+mkdir -p $bin_dir
+ln -sf $dest/bin/kitty $bin_dir/kitty
 
-get_nightly_url() {
-    get_file_url "nightly" "nightly"
-}
+# Clean up
+echo "Cleaning up..."
+rm -f $tmpfile
+rm -rf "/tmp/kitty-extract"
 
-get_download_url() {
-    installer_is_file="n"
-    case "$installer" in
-        "nightly") get_nightly_url ;;
-        "") get_release_url ;;
-        version-*) get_version_url "${installer#*-}";;
-        *) installer_is_file="y" ;;
-    esac
-}
-
-download_installer() {
-    tdir=$(command mktemp -d "/tmp/kitty-install-XXXXXXXXXXXX")
-    [ "$installer_is_file" != "y" ] && {
-        printf '%s\n\n' "Downloading from: $url"
-        if [ "$OS" = "macos" ]; then
-            installer="$tdir/kitty.dmg"
-        else
-            installer="$tdir/kitty.txz"
-        fi
-        fetch "$url" > "$installer" || die "Failed to download: $url"
-        installer_is_file="y"
-    }
-}
-
-ensure_dest() {
-    printf "%s\n" "Installing to $dest"
-    command rm -rf "$dest" || die "Failed to delete $dest"
-    command mkdir -p "$dest" || die "Failed to mkdir -p $dest"
-    command rm -rf "$dest" || die "Failed to delete $dest"
-}
-
-linux_install() {
-    command mkdir "$tdir/mp"
-    command tar -C "$tdir/mp" "-xJof" "$installer" || die "Failed to extract kitty tarball"
-    ensure_dest
-    command mv "$tdir/mp" "$dest" || die "Failed to move kitty.app to $dest"
-	command mkdir -p "$HOME/.local/bin"
-	command ln -sf "$dest/bin/kitty" "$HOME/.local/bin/kitty"
-	command mkdir -p "$HOME/.local/share/applications" "$HOME/.local/share/icons"
-	command cp "$dest/share/applications/kitty.desktop" "$HOME/.local/share/applications/"
-	command cp "$dest/share/icons/hicolor/256x256/apps/kitty.png" "$HOME/.local/share/icons/"
-	command sed -i "s|Exec=kitty|Exec=$HOME/.local/bin/kitty|g" "$HOME/.local/share/applications/kitty.desktop"
-	command sed -i "s|TryExec=kitty|TryExec=$HOME/.local/bin/kitty|g" "$HOME/.local/share/applications/kitty.desktop"
-}
-
-macos_install() {
-    command mkdir "$tdir/mp"
-    command hdiutil attach "$installer" "-mountpoint" "$tdir/mp" || die "Failed to mount kitty.dmg"
-    ensure_dest
-    command ditto -v "$tdir/mp/kitty.app" "$dest"
-    rc="$?"
-    command hdiutil detach "$tdir/mp"
-    [ "$rc" != "0" ] && die "Failed to copy kitty.app from mounted dmg"
-}
-
-exec_kitty() {
-    if [ "$OS" = "macos" ]; then
-        exec "open" "$dest"
-    else
-        exec "$dest/bin/kitty" "--detach"
-    fi
-    die "Failed to launch kitty"
-}
-
-main() {
-    detect_os
-    parse_args "$@"
-    detect_network_tool
-    get_download_url
-    download_installer
-    if [ "$OS" = "macos" ]; then
-        macos_install
-    else
-        linux_install
-    fi
-    cleanup
-    [ "$launch" = "y" ] && exec_kitty
-    exit 0
-}
-
-main "$@"
+echo "Kitty terminal has been successfully installed!"
