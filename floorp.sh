@@ -21,14 +21,14 @@ if [ -z "$latest_version" ]; then
 fi
 
 # Construct the download URL
-url="https://github.com/Floorp-Projects/Floorp/releases/download/v${latest_version}/floorp-${latest_version}.linux-x86_64.tar.bz2"
+url="${url}/v${latest_version}/floorp-${latest_version}.linux-x86_64.tar.bz2"
 
 # Download with progress bar and error checking
 echo "Downloading Floorp Browser v${latest_version}..."
-if ! wget -q -O "$tmpfile" "$url" 2>/dev/null; then
-	echo "Error: Download failed"
-	rm -f "$tmpfile"
-	exit 1
+if ! wget -O $tmpfile $url 2>/dev/null; then
+  echo "An error occurred while downloading the package!"
+  echo "Please check your internet connection or your storage availability."
+  exit 1
 fi
 
 # Verify the downloaded file
