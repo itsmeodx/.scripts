@@ -5,4 +5,4 @@ This directory contains various scripts designed to enhance productivity and wor
 ## Notes
 
 - These scripts are designed to run on a 42Network Linux environment.
-- Modify the custom directories in the scripts as needed.
+- Modify the custom directories in these scripts as needed.
