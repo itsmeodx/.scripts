@@ -12,8 +12,7 @@ bin_dir="$HOME/.local/bin"
 
 # Get the latest version number
 echo "Fetching latest Floorp version..."
-latest_version=$(curl -s https://api.github.com/repos/Floorp-Projects/Floorp/releases/latest \
-					| grep -Po '"tag_name": "v\K[^"]*')
+latest_version=$(curl -s https://api.github.com/repos/Floorp-Projects/Floorp/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
 
 if [ -z "$latest_version" ]; then
 	echo "Error: Could not determine latest version"
