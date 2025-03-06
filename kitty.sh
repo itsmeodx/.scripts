@@ -3,7 +3,7 @@
 # This script installs Kitty terminal on Linux x64
 
 # Custom variables
-dest="$HOME/Apps/kitty"
+dest="$HOME/goinfre/Apps/kitty"
 tmpfile="/tmp/kitty.txz"
 tmpdir="/tmp/kitty"
 url="https://github.com/kovidgoyal/kitty/releases/download"
@@ -41,6 +41,7 @@ fi
 # Extract the package
 echo "Extracting the package..."
 mkdir -p /tmp/kitty-extract
+mkdir -p $dest
 if ! tar -xJf "$tmpfile" -C "/tmp/kitty-extract" 2>/dev/null; then
     echo "Error: Extraction failed"
     rm -f "$tmpfile"
@@ -54,11 +55,13 @@ cp -r /tmp/kitty-extract/* "$dest"
 # Extract the desktop entry and icon
 echo "Setting up desktop entry and icon..."
 mkdir -p $applications_desktop_dir
-cp $dest/share/applications/kitty.desktop $applications_desktop_dir
+cp $dest/share/applications/* $applications_desktop_dir
 sed -i "s|Exec=kitty|Exec=$dest/bin/kitty|g" $applications_desktop_dir/kitty.desktop
 sed -i "s|TryExec=kitty|TryExec=$dest/bin/kitty|g" $applications_desktop_dir/kitty.desktop
+sed -i "s|Exec=kitty|Exec=$dest/bin/kitty|g" $applications_desktop_dir/kitty-open.desktop
+sed -i "s|TryExec=kitty|TryExec=$dest/bin/kitty|g" $applications_desktop_dir/kitty-open.desktop
 mkdir -p $icons_dir
-cp $dest/share/icons/* $icons_dir/
+cp -r $dest/share/icons/* $icons_dir/
 
 # Create a symbolic link to the binary
 echo "Creating a symbolic link to the binary..."
