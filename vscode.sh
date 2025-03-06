@@ -13,9 +13,9 @@ bin_dir="$HOME/.local/bin"
 # Download the latest version of Visual Studio Code for Linux x64
 echo "Downloading the latest version of Visual Studio Code for Linux x64..."
 if ! wget -O $tmpfile $url 2>/dev/null; then
-  echo "An error occurred while downloading the package!"
-  echo "Please check your internet connection or your storage availability."
-  exit 1
+	echo "An error occurred while downloading the package!"
+	echo "Please check your internet connection or your storage availability."
+	exit 1
 fi
 
 # Extract the deb package
