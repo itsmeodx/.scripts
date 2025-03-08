@@ -12,4 +12,4 @@ tar -xf $ext -C $dest
 
 # Restart GNOME Shell
 echo "Press Alt+F2, type 'r' and press Enter to restart GNOME Shell"
-echo "Then enable Pop!_OS Shell GNOME extension by running 'gnome-extensions enable pop-shell@system76.com'"
+echo "Then enable Pop!_OS Shell GNOME extension\n by running 'gnome-extensions enable pop-shell@system76.com'"
