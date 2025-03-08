@@ -7,7 +7,7 @@ dest=$HOME/.local/share/gnome-shell/extensions
 ext=./extensions/pop-shell@system76.com.tar.xz
 
 # Install Pop!_OS Shell GNOME extension
-mkdir -p $des
+mkdir -p $dest
 tar -xf $ext -C $dest
 
 # Enable Pop!_OS Shell GNOME extension
