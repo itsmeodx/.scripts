@@ -19,7 +19,7 @@ git clone --branch $branch $repo $tmpdir || {
 
 # Install the dependencies
 echo "Installing the dependencies..."
-rm -rf $tmpdepsmkdir -p $tmpdeps
+mkdir -p $tmpdeps
 cd $tmpdeps
 apt download node-typescript
 dpkg -x node-typescript*.deb .
