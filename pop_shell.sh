@@ -3,14 +3,39 @@
 # This script installs Pop!_OS Shell GNOME extension
 
 # Custom variables
-dest=$HOME/.local/share/gnome-shell/extensions
-ext=./extensions/pop-shell@system76.com.tar.xz
+repo="https://github.com/pop-os/shell.git"
+tmpdir="/tmp/pop-shell"
+tmpdeps="${tmpdir}/pop-deps"
+branch="master_jammy"
 
-# Install Pop!_OS Shell GNOME extension
-mkdir -p $dest
-tar -xf $ext -C $dest
+# Clone the repository
+echo "Cloning the repository..."
+rm -rf $tmpdir
+git clone --branch $branch $repo $tmpdir || {
+	echo "An error occurred while cloning the repository!"
+	echo "Please check your internet connection or your storage availability."
+	exit 1
+}
 
-# Restart GNOME Shell
-echo "Press Alt+F2, type 'r' and press Enter to restart GNOME Shell"
-echo "Then enable Pop!_OS Shell GNOME extension"
-echo "by running:\vgnome-extensions enable pop-shell@system76.com"
+# Install the dependencies
+echo "Installing the dependencies..."
+rm -rf $tmpdeps
+mkdir -p $tmpdeps
+cd $tmpdeps
+apt download node-typescript
+dpkg -x node-typescript*.deb .
+export PATH=$PATH:$tmpdeps/usr/bin
+echo $PATH
+
+# Install the extension
+echo "Installing the extension..."
+cd $tmpdir
+make local-install || {
+	echo "An error occurred while installing the extension!"
+	echo "Please check your internet connection or your storage availability."
+	exit 1
+}
+
+# Clean up
+echo "Cleaning up..."
+rm -rf /tmp/pop-shell
