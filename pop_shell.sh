@@ -77,12 +77,8 @@ set_keybindings() {
 # This script installs Pop!_OS Shell GNOME extension
 
 # Custom variables
-repo="https://github.com/pop-os/shell.git"
 src="$PWD/extensions/pop-shell@system76.com.tar.xz"
 dest="$HOME/.local/share/gnome-shell/extensions"
-tmpdir="/tmp/pop-shell"
-tmpdeps="${tmpdir}/pop-deps"
-branch="master_jammy"
 
 # Copy the extension to the GNOME extensions directory
 echo "Copying the extension to the GNOME extensions directory..."
