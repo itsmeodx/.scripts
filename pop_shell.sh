@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+# This script installs Pop!_OS Shell GNOME extension
+# and sets custom keybindings for Pop!_OS Shell.
 # Set keybindings for Pop!_OS Shell
 set_keybindings() {
 	left="h"
@@ -73,8 +75,6 @@ set_keybindings() {
 	# Close Window
 	dconf write ${KEYS_GNOME_WM}/close "['<Super>q', '<Alt>F4']"
 }
-
-# This script installs Pop!_OS Shell GNOME extension
 
 # Custom variables
 src="$PWD/extensions/pop-shell@system76.com.tar.xz"
