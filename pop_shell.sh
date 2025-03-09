@@ -103,10 +103,8 @@ fi
 
 # Restarting GNOME Shell and enabling the extension
 echo "Restarting GNOME Shell..."
-# pkill -HUP gnome-shell
-sleep 3
-gnome-extensions enable pop-shell@system76.com
+pkill -HUP gnome-shell && sleep 3 && gnome-extensions enable pop-shell@system76.com
 
 # Clean up
 echo "Cleaning up..."
-# rm -rf /tmp/pop-shell/
+rm -rf /tmp/pop-shell/
