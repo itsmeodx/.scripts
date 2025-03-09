@@ -82,6 +82,7 @@ dest="$HOME/.local/share/gnome-shell/extensions"
 
 # Copy the extension to the GNOME extensions directory
 echo "Copying the extension to the GNOME extensions directory..."
+mkdir -p $dest
 tar -xf $src -C $dest || {
 	echo "An error occurred while copying the extension!"
 	echo "Please check your storage availability."
