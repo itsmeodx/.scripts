@@ -16,8 +16,8 @@ echo "Fetching latest Kitty version..."
 latest_version=$(curl -s "https://sw.kovidgoyal.net/kitty/current-version.txt")
 
 if [ -z "$latest_version" ]; then
-    echo "Error: Could not determine latest version"
-    exit 1
+	echo "Error: Could not determine latest version"
+	exit 1
 fi
 
 # Construct the download URL exactly as in the original
@@ -25,32 +25,34 @@ url="${url}/v${latest_version}/kitty-${latest_version}-x86_64.txz"
 
 # Download with progress bar and error checking
 echo "Downloading Kitty terminal v${latest_version}..."
-if ! wget -O $tmpfile $url 2>/dev/null; then
-    echo "An error occurred while downloading the package!"
-    echo "Please check your internet connection or your storage availability."
-    exit 1
+if ! curl -L --progress-bar -o "$tmpfile" "$url"; then
+	echo "An error occurred while downloading the package!"
+	echo "Please check your internet connection or your storage availability."
+	exit 1
 fi
+
+echo -e "\033[1A\033[2KDownload complete"
 
 # Verify the downloaded file
 if [ ! -s "$tmpfile" ]; then
-    echo "Error: Downloaded file is empty"
-    rm -f "$tmpfile"
-    exit 1
+	echo "Error: Downloaded file is empty"
+	rm -f "$tmpfile"
+	exit 1
 fi
 
 # Extract the package
 echo "Extracting the package..."
-mkdir -p /tmp/kitty-extract
-mkdir -p $dest
-if ! tar -xJf "$tmpfile" -C "/tmp/kitty-extract" 2>/dev/null; then
-    echo "Error: Extraction failed"
-    rm -f "$tmpfile"
-    rm -rf "/tmp/kitty-extract"
-    exit 1
+mkdir -p $tmpdir
+if ! tar -xJf "$tmpfile" -C "$tmpdir" 2>/dev/null; then
+	echo "Error: Extraction failed"
+	rm -f "$tmpfile"
+	rm -rf "$tmpdir"
+	exit 1
 fi
 
 # Copy the extracted files to the destination
-cp -r /tmp/kitty-extract/* "$dest"
+mkdir -p $dest
+cp -r $tmpdir/* $dest
 
 # Extract the desktop entry and icon
 echo "Setting up desktop entry and icon..."
@@ -68,9 +70,12 @@ echo "Creating a symbolic link to the binary..."
 mkdir -p $bin_dir
 ln -sf $dest/bin/kitty $bin_dir/kitty
 
+# Checking the PATH variable
+./checking_PATH.sh
+
 # Clean up
 echo "Cleaning up..."
 rm -f $tmpfile
-rm -rf "/tmp/kitty-extract"
+rm -rf $tmpdir
 
 echo "Kitty terminal has been successfully installed!"
