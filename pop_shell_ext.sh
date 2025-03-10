@@ -102,4 +102,5 @@ fi
 echo "Restarting GNOME Shell..."
 pkill -HUP gnome-shell && sleep 3 && gnome-extensions enable pop-shell@system76.com
 
+# Done
 echo "Pop!_OS Shell GNOME extension has been installed successfully!"
