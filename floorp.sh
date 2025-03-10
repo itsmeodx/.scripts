@@ -24,22 +24,17 @@ url="${url}/v${latest_version}/floorp-${latest_version}.linux-x86_64.tar.bz2"
 
 # Download with progress bar and error checking
 echo "Downloading Floorp Browser v${latest_version}..."
-if ! wget -O $tmpfile $url 2>/dev/null; then
-  echo "An error occurred while downloading the package!"
-  echo "Please check your internet connection or your storage availability."
-  exit 1
+if ! curl -L --progress-bar -o "$tmpfile" "$url"; then
+	echo "An error occurred while downloading the package!"
+	echo "Please check your internet connection or your storage availability."
+	exit 1
 fi
+
+echo -en "\033[1A\033[2KDownload complete\n"
 
 # Verify the downloaded file
 if [ ! -s "$tmpfile" ]; then
     echo "Error: Downloaded file is empty"
-    rm -f "$tmpfile"
-    exit 1
-fi
-
-# Test archive integrity
-if ! bzip2 -t "$tmpfile" 2>/dev/null; then
-    echo "Error: Downloaded archive is corrupted"
     rm -f "$tmpfile"
     exit 1
 fi
@@ -89,6 +84,9 @@ cp $dest/browser/chrome/icons/default/default128.png $icons_dir/floorp.png
 echo "Creating a symbolic link to the binary..."
 mkdir -p $bin_dir
 ln -sf $dest/floorp $bin_dir/floorp
+
+# Checking the PATH variable
+./checking_PATH.sh
 
 # Clean up
 echo "Cleaning up..."
