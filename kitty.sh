@@ -78,4 +78,5 @@ echo "Cleaning up..."
 rm -f $tmpfile
 rm -rf $tmpdir
 
+# Done
 echo "Kitty terminal has been successfully installed!"

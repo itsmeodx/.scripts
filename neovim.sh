@@ -56,4 +56,5 @@ echo "Cleaning up..."
 rm -f $tmpfile
 rm -rf /tmp/nvim-linux-x86_64
 
+# Done
 echo "NeoVim has been successfully installed!"

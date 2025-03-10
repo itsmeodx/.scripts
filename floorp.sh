@@ -92,3 +92,5 @@ ln -sf $dest/floorp $bin_dir/floorp
 echo "Cleaning up..."
 rm $tmpfile
 
+# Done
+echo "Floorp Browser has been successfully installed!"

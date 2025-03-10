@@ -60,4 +60,5 @@ ln -sf $dest/usr/share/code/bin/code $bin_dir/code
 echo "Cleaning up..."
 rm $tmpfile
 
+# Done
 echo "Visual Studio Code has been successfully installed!"
