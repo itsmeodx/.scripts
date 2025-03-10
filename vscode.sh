@@ -12,16 +12,29 @@ bin_dir="$HOME/.local/bin"
 
 # Download the latest version of Visual Studio Code for Linux x64
 echo "Downloading the latest version of Visual Studio Code for Linux x64..."
-if ! wget -O $tmpfile $url 2>/dev/null; then
+if ! curl -L --progress-bar -o "$tmpfile" "$url"; then
 	echo "An error occurred while downloading the package!"
 	echo "Please check your internet connection or your storage availability."
+	exit 1
+fi
+
+echo -e "\033[1A\033[2KDownload complete"
+
+# Verify the downloaded file
+if [ ! -s "$tmpfile" ]; then
+	echo "Error: Downloaded file is empty"
+	rm -f "$tmpfile"
 	exit 1
 fi
 
 # Extract the deb package
 echo "Extracting the package..."
 mkdir -p $dest
-dpkg -x $tmpfile $dest
+if ! dpkg -x $tmpfile $dest 2>/dev/null; then
+	echo "Error: Extraction failed"
+	rm -f "$tmpfile"
+	exit 1
+fi
 
 # Extract the desktop entry and icon
 echo "Extracting the desktop entry and icon..."
@@ -39,6 +52,9 @@ cp $dest/usr/share/pixmaps/vscode.png $icons_dir/vscode.png
 echo "Creating a symbolic link to the binary..."
 mkdir -p $bin_dir
 ln -sf $dest/usr/share/code/bin/code $bin_dir/code
+
+# Checking the PATH variable
+./checking_PATH.sh
 
 # Clean up
 echo "Cleaning up..."
