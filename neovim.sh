@@ -12,11 +12,19 @@ bin_dir="$HOME/.local/bin"
 
 # Download the latest version of NeoVim for Linux x64
 echo "Downloading the latest version of NeoVim for Linux x64..."
-wget -O $tmpfile $url 2>/dev/null
-if [ $? -ne 0 ]; then
-  echo "An error occurred while downloading the package!"
-  echo "Please check your internet connection or your storage availability."
-  exit 1
+if ! curl -L --progress-bar -o "$tmpfile" "$url"; then
+	echo "An error occurred while downloading the package!"
+	echo "Please check your internet connection or your storage availability."
+	exit 1
+fi
+
+echo -e "\033[1A\033[2KDownload complete"
+
+# Verify the downloaded file
+if [ ! -s "$tmpfile" ]; then
+	echo "Error: Downloaded file is empty"
+	rm -f "$tmpfile"
+	exit 1
 fi
 
 # Extract the tarball
@@ -39,6 +47,9 @@ cp -r $dest/share/icons/* $icons_dir
 echo "Creating a symbolic link to the binary..."
 mkdir -p $bin_dir
 ln -sf $dest/bin/nvim $bin_dir/nvim
+
+# Checking the PATH variable
+./checking_PATH.sh
 
 # Clean up
 echo "Cleaning up..."
