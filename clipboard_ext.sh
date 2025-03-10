@@ -17,7 +17,7 @@ tar -xf $src -C $dest || {
 
 # Restarting GNOME Shell and enabling the extension
 echo "Restarting GNOME Shell..."
-pkill -HUP gnome-shell && sleep 3 && gnome-extensions enable pop-shell@system76.com
+pkill -HUP gnome-shell && sleep 3 && gnome-extensions enable clipboard-history@alexsaveau.dev
 
 # Done
 echo "Clipboard Indicator GNOME extension has been installed successfully!"
