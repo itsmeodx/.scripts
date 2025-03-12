@@ -13,6 +13,8 @@ while true; do
 			notify-send "Session unlocked" "ft_lock has been killed" -u normal -i lock
 		fi
 	else
-		[ -f /tmp/telelock ] && rm /tmp/telelock
-	fi
+		if [ -f /tmp/telelock ]
+			rm /tmp/telelock
+			ft_lock
+		fi
 done &
