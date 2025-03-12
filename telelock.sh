@@ -9,12 +9,10 @@ while true; do
 	if lsusb | grep -q $MYPHONEID; then
 		if [ ! -f /tmp/telelock ]; then
 			touch /tmp/telelock
-			pkill -KILL ft_lock
 			notify-send "Session unlocked" "ft_lock has been killed" -u normal -i lock
 		fi
 	else
 		if [ -f /tmp/telelock ]
 			rm /tmp/telelock
-			ft_lock
 		fi
 done &
