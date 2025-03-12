@@ -15,7 +15,4 @@ while true; do
 	else
 		[ -f /tmp/telelock ] && rm /tmp/telelock
 	fi
-
-	# Wait before checking again
-	sleep 2
 done &
