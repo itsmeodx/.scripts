@@ -14,6 +14,6 @@ while true; do
 		fi
 	else
 		if [ -f /tmp/telelock ]
-			rm /tmp/telelock
+			rm -rf /tmp/telelock
 		fi
 done &
