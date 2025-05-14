@@ -30,7 +30,6 @@ if ! curl -L --progress-bar -o "$tmpfile" "$url"; then
 	echo "Please check your internet connection or your storage availability."
 	exit 1
 fi
-
 echo -e "\033[1A\033[2KDownload complete"
 
 # Verify the downloaded file
