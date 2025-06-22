@@ -3,7 +3,7 @@
 # This script installs Visual Studio Code on Linux x64
 
 # Custom variables
-dest="$HOME/Apps/vscode"
+dest="$HOME/goinfre/Apps/vscode"
 tmpfile="/tmp/vscode.deb"
 url="https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
 applications_desktop_dir="$HOME/.local/share/applications"
