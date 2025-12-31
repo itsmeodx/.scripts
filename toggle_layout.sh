@@ -6,18 +6,32 @@ if ! pgrep -x "gnome-shell" > /dev/null; then
     exit 1
 fi
 
-# Get existing custom keybindings
-CURRENT_BINDINGS=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings)
+# Get existing custom keybindings and strip GVariant type annotation
+CURRENT_BINDINGS=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings | sed 's/^@as //')
 # Remove the brackets from the current bindings string
 CURRENT_BINDINGS=${CURRENT_BINDINGS:1:-1}
 
-# Add our new binding path
+# Add our new binding path, avoiding duplicates
 NEW_BINDING="'/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/'"
-if [[ -z "$CURRENT_BINDINGS" ]]; then
-    FINAL_BINDINGS="[$NEW_BINDING]"
-else
-    FINAL_BINDINGS="[$CURRENT_BINDINGS, $NEW_BINDING]"
+typeset -A SEEN
+FINAL_ARRAY=()
+
+if [[ -n "$CURRENT_BINDINGS" ]]; then
+    for entry in ${(s:,:)CURRENT_BINDINGS}; do
+        entry=${entry## }   # trim leading space
+        entry=${entry%% }   # trim trailing space
+        if [[ -n "$entry" && -z ${SEEN[$entry]} ]]; then
+            FINAL_ARRAY+=$entry
+            SEEN[$entry]=1
+        fi
+    done
 fi
+
+if [[ -z ${SEEN[$NEW_BINDING]} ]]; then
+    FINAL_ARRAY+=$NEW_BINDING
+fi
+
+FINAL_BINDINGS="[${(j:, :)FINAL_ARRAY}]"
 
 # Set Layout shortcuts
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ name 'Toggle Layout'
